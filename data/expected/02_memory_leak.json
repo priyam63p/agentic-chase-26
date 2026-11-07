@@ -1,0 +1,8 @@
+﻿{
+  "scenario_id": "02_memory_leak",
+  "expected_root_cause_service": "worker-service",
+  "expected_severity": ["High", "Critical"],
+  "expected_anomalous_services": ["worker-service", "queue-coordinator"],
+  "matched_runbook_category": "MEMORY",
+  "requires_injection_detection": false
+}

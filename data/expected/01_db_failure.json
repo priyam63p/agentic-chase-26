@@ -1,0 +1,8 @@
+﻿{
+  "scenario_id": "01_db_failure",
+  "expected_root_cause_service": "db-primary",
+  "expected_severity": ["High", "Critical"],
+  "expected_anomalous_services": ["db-primary", "orders-api", "api-gateway", "web"],
+  "matched_runbook_category": "DATABASE",
+  "requires_injection_detection": false
+}

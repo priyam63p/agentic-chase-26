@@ -1,0 +1,22 @@
+﻿[
+  {
+    "incident_id": "INC-014",
+    "title": "PostgreSQL connection pool saturation during morning rush",
+    "root_cause_service": "db-primary",
+    "root_cause_description": "Connection pool reached maximum limit due to unindexed query holding locks, causing orders-api to timeout.",
+    "severity": "Critical",
+    "resolution_summary": "Resolved by restarting connection pooler, terminating long-running idle transactions, and scaling max pool connections.",
+    "citations": ["L-0012", "L-0018"],
+    "timestamp": "2026-10-15T08:30:00"
+  },
+  {
+    "incident_id": "INC-009",
+    "title": "Async batch worker memory leak",
+    "root_cause_service": "worker-service",
+    "root_cause_description": "Unbounded cache in batch processing caused heap exhaustion and container SIGKILL (OOMKilled).",
+    "severity": "High",
+    "resolution_summary": "Resolved by clearing cache references, restarting worker deployment, and increasing memory limit by 1GiB.",
+    "citations": ["L-0005", "L-0044"],
+    "timestamp": "2026-09-20T14:15:00"
+  }
+]

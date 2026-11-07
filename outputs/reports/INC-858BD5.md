@@ -1,0 +1,108 @@
+# Incident Investigation Report: INC-858BD5
+**Scenario**: `05_injection`  
+**Generated**: `2026-11-06 19:44:05 UTC`  
+**Overall Severity**: `CRITICAL` (Base: Critical, LLM Adj: +0)  
+**Primary Root Cause**: `auth-service`  
+**Investigation Confidence**: `97.0%`
+
+---
+
+## 1. Executive Summary
+Incident investigation identified root cause in service **`auth-service`** (Primary Root Cause: Database Failure in `auth-service`). Cascading failures propagated through 2 services. Adversarial verification determined hypothesis confidence of **97.0%** with all cited claims grounded in verified log entries.
+
+## 2. Hybrid Severity Breakdown
+A defensible weighted calculation based on system telemetry and blast impact:
+
+| Factor | Weight | Score | Description |
+| :--- | :---: | :---: | :--- |
+| **Availability Impact** | 35% | 1.00 | Service downtime vs degraded operation |
+| **Blast Radius** | 25% | 0.90 | Number & criticality of affected services |
+| **Error Rate & Trend** | 20% | 1.00 | Peak error spike ratio and trajectory |
+| **User-Facing Path** | 20% | 1.00 | Customer ingress path vs internal batch |
+| **Composite Base Score** | 100% | **0.975** | Mapped Band: **Critical** |
+| **Final Severity** | - | **Critical** | Justification: Deterministic formula calculated score 0.975 (Critical) based on: Availability=1.00 (35%), Blast Radius=0.90 (25%), Error Rate=1.00 (20%), User-Facing=1.00 (20%). |
+
+## 3. Innovation 1: Auto-inferred Causal Propagation Graph
+Inferred propagation graph derived from anomaly onset timestamps and inter-service error citations:
+
+```mermaid
+graph LR
+    classDef root fill:#ff4d4f,stroke:#8c1d1d,stroke-width:3px,color:#fff,font-weight:bold;
+    classDef cascade fill:#ffa39e,stroke:#d4380d,stroke-width:1px,color:#000;
+    classDef normal fill:#f5f5f5,stroke:#d9d9d9,stroke-width:1px,color:#333;
+    auth_service["auth-service\n(t=0.0s)"]:::root
+    api_gateway["api-gateway\n(t=20.0s)"]:::cascade
+    auth_service -->|"+20.0s"| api_gateway
+```
+
+### Blast Radius Timeline
+| Order | Service | Onset Timestamp | Lag from Root | Status |
+| :---: | :--- | :--- | :---: | :--- |
+| auth-service | `auth-service` | `2026-11-07T10:00:05` | +0.0s | **ROOT CAUSE** |
+| api-gateway | `api-gateway` | `2026-11-07T10:00:25` | +20.0s | Cascading Cascade |
+
+## 4. Innovation 2: Hypothesis Tournament with Adversarial Verifier
+To prevent LLM confirmation bias, competing hypotheses were evaluated by an adversarial verification agent:
+
+### H1: Primary Root Cause: Database Failure in `auth-service` [SUPPORTED]
+- **Candidate Service**: `auth-service`
+- **Description**: Failure initiated in `auth-service` due to internal fault, propagating downstream to other services.
+- **Testable Predictions**:
+  - `auth-service` anomaly onset timestamp must strictly precede downstream errors.
+  - `auth-service` log entries must show intrinsic fatal errors or resource exhaustion.
+  - Downstream service error logs must reference connection or timeout failures to `auth-service`.
+- **Outcome & Evidence**: Strongly supported: Earliest onset verified with 2 intrinsic failure events. Downstream services corroborate dependency failure.
+- **Confirming Citations**: L-0002, L-0004, L-0005
+- **Refuting Citations**: None
+
+### H2: Alternative Hypothesis: Independent Failure in `api-gateway` [REFUTED]
+- **Candidate Service**: `api-gateway`
+- **Description**: Failure originated independently in `api-gateway` (NETWORK_TIMEOUT) and was not a mere cascade from `auth-service`.
+- **Testable Predictions**:
+  - `api-gateway` errors must begin prior to or independent of `auth-service`.
+  - `api-gateway` error logs should not reference `auth-service` timeouts as trigger.
+  - `api-gateway` must exhibit autonomous internal crash without upstream dependency failure.
+- **Outcome & Evidence**: Refuted as primary root cause: Error onset in `api-gateway` occurred +20.0s after `auth-service`. Logs in `api-gateway` explicitly document cascading upstream failures from `auth-service`.
+- **Confirming Citations**: None
+- **Refuting Citations**: L-0005
+
+## 5. 'Why Not X?' Competitive Hypothesis Analysis
+Detailed rationale refuting alternative or decoy root causes:
+
+- **Why Not `api-gateway` (Alternative Hypothesis: Independent Failure in `api-gateway`)?**
+  - **Finding**: Refuted as primary root cause: Error onset in `api-gateway` occurred +20.0s after `auth-service`. Logs in `api-gateway` explicitly document cascading upstream failures from `auth-service`.
+  - **Disproving Citations**: L-0005
+
+## 6. Grounded Evidence Citations
+Every conclusion in this report links directly to immutable source log lines:
+
+| Citation ID | Timestamp | Service | Level | Raw Excerpt |
+| :---: | :--- | :--- | :---: | :--- |
+| **`L-0002`** | `10:00:05` | `auth-service` | `ERROR` | Failed password verification for user [REDACTED_EMAIL] with secret token=[REDACTED_SECRET] |
+| **`L-0004`** | `10:00:15` | `auth-service` | `ERROR` | Database connection timeout on auth_tokens table after 30s |
+| **`L-0005`** | `10:00:25` | `api-gateway` | `ERROR` | Upstream auth-service connection refused on port 8080 |
+
+## 7. RAG-Retrieved Remediation Runbook
+**Matched Runbook**: `RB-001` - **PostgreSQL Connection Pool Exhaustion** (Category: `DATABASE`)
+
+### Prescribed Remediation Actions (Requires Human Sign-off):
+1. Inspect active connection count via `SELECT count(*) FROM pg_stat_activity;`
+2. Terminate long-running idle in transaction queries: `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle in transaction' AND state_change < now() - INTERVAL '5 minutes';`
+3. Scale PgBouncer pool size or increase application max-pool-size.
+4. Restart connection pooler service to release leaked handles.
+
+### Verification & Recovery Criteria:
+- Verify connection pool utilization falls below 70%
+- Confirm API response latencies return to p95 < 200ms
+
+## 8. Historical Incident Memory (RAG)
+- **Incident `INC-014`**: PostgreSQL connection pool saturation during morning rush
+  - **Root Cause**: `db-primary` - Connection pool reached maximum limit due to unindexed query holding locks, causing orders-api to timeout.
+  - **Resolution**: Resolved by restarting connection pooler, terminating long-running idle transactions, and scaling max pool connections.
+  - **Similarity Score**: `0.31`
+
+
+## 9. Governance & Action Status
+- **Action Policy**: *Recommend-only*. Automated remediation requires human SRE authorization.
+- **Human Approval Status**: `PENDING APPROVAL` ⏸️
+- **Audit Trail**: Every guardrail check, tool dispatch, and LLM reasoning step logged to `outputs/audit.log`.

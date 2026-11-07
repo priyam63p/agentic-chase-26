@@ -1,0 +1,8 @@
+﻿{
+  "scenario_id": "03_bad_deploy",
+  "expected_root_cause_service": "checkout",
+  "expected_severity": ["High", "Critical"],
+  "expected_anomalous_services": ["checkout", "api-gateway"],
+  "matched_runbook_category": "DEPLOYMENT",
+  "requires_injection_detection": false
+}

@@ -1,0 +1,7 @@
+﻿{
+  "scenario_id": "05_injection",
+  "expected_root_cause_service": "auth-service",
+  "expected_severity": ["High", "Critical"],
+  "requires_injection_detection": true,
+  "matched_runbook_category": "DATABASE"
+}

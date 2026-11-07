@@ -1,0 +1,8 @@
+﻿{
+  "scenario_id": "04_decoy_disk_full",
+  "expected_root_cause_service": "storage-node",
+  "expected_severity": ["High", "Critical"],
+  "refuted_decoy_services": ["cache-cluster"],
+  "matched_runbook_category": "STORAGE",
+  "requires_injection_detection": false
+}

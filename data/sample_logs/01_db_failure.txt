@@ -1,0 +1,8 @@
+﻿2026-11-07 10:00:00 [db-primary] [CRITICAL] FATAL: remaining connection slots are reserved for non-replication superuser connections (max_connections=500 reached)
+2026-11-07 10:00:05 [db-primary] [ERROR] Connection pool exhausted: active_connections=500, waiting_clients=84, pool_timeout=30s
+2026-11-07 10:00:15 [orders-api] [ERROR] Timeout acquiring connection to upstream db-primary after 15000ms. Aborting transaction.
+2026-11-07 10:00:20 [orders-api] [ERROR] Failed to execute query on db-primary: connection pool timeout
+2026-11-07 10:00:30 [api-gateway] [ERROR] HTTP 504 Gateway Timeout: upstream orders-api connection timed out after 30s
+2026-11-07 10:00:35 [api-gateway] [ERROR] Egress failure: orders-api health check failing consecutive attempts
+2026-11-07 10:00:45 [web] [ERROR] HTTP 500 Internal Server Error returned to user while rendering /orders checkout flow
+2026-11-07 10:00:50 [web] [ERROR] Customer path degraded: orders-api returned 504 to gateway

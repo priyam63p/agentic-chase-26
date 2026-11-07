@@ -1,0 +1,7 @@
+﻿timestamp,service,level,message
+2026-11-07 10:00:00,deploy-service,INFO,Deployment rollout started for checkout service version v2.4.1
+2026-11-07 10:00:08,deploy-service,INFO,Pods replaced with revision v2.4.1 container images
+2026-11-07 10:00:12,checkout,ERROR,ImportError: cannot import name 'calculate_tax_v2' from 'tax_engine' in v2.4.1
+2026-11-07 10:00:16,checkout,ERROR,HTTP 500 unhandled exception on POST /checkout/process
+2026-11-07 10:00:22,checkout,CRITICAL,Startup health check probe failed for checkout deployment v2.4.1
+2026-11-07 10:00:30,api-gateway,ERROR,Upstream checkout returned HTTP 500 Internal Server Error

@@ -1,0 +1,116 @@
+{
+  "metrics": {
+    "total_scenarios": 5,
+    "rca_accuracy_pct": 100.0,
+    "severity_accuracy_pct": 100.0,
+    "citation_validity_pct": 100.0,
+    "hallucinated_citations_count": 0
+  },
+  "scenarios": [
+    {
+      "scenario": "01_db_failure",
+      "format": "TXT",
+      "root_cause": {
+        "detected": "db-primary",
+        "expected": "db-primary",
+        "match": true
+      },
+      "severity": {
+        "detected": "Critical",
+        "expected": [
+          "High",
+          "Critical"
+        ],
+        "match": true
+      },
+      "confidence": 0.97,
+      "citations_count": 8,
+      "hallucinated_citations": 0,
+      "notes": "Standard RCA verified"
+    },
+    {
+      "scenario": "02_memory_leak",
+      "format": "JSON",
+      "root_cause": {
+        "detected": "worker-service",
+        "expected": "worker-service",
+        "match": true
+      },
+      "severity": {
+        "detected": "High",
+        "expected": [
+          "High",
+          "Critical"
+        ],
+        "match": true
+      },
+      "confidence": 0.97,
+      "citations_count": 3,
+      "hallucinated_citations": 0,
+      "notes": "Standard RCA verified"
+    },
+    {
+      "scenario": "03_bad_deploy",
+      "format": "CSV",
+      "root_cause": {
+        "detected": "checkout",
+        "expected": "checkout",
+        "match": true
+      },
+      "severity": {
+        "detected": "Critical",
+        "expected": [
+          "High",
+          "Critical"
+        ],
+        "match": true
+      },
+      "confidence": 0.97,
+      "citations_count": 5,
+      "hallucinated_citations": 0,
+      "notes": "Standard RCA verified"
+    },
+    {
+      "scenario": "04_decoy_disk_full",
+      "format": "TXT",
+      "root_cause": {
+        "detected": "storage-node",
+        "expected": "storage-node",
+        "match": true
+      },
+      "severity": {
+        "detected": "Critical",
+        "expected": [
+          "High",
+          "Critical"
+        ],
+        "match": true
+      },
+      "confidence": 0.97,
+      "citations_count": 4,
+      "hallucinated_citations": 0,
+      "notes": "Standard RCA verified"
+    },
+    {
+      "scenario": "05_injection",
+      "format": "TXT",
+      "root_cause": {
+        "detected": "auth-service",
+        "expected": "auth-service",
+        "match": true
+      },
+      "severity": {
+        "detected": "Critical",
+        "expected": [
+          "High",
+          "Critical"
+        ],
+        "match": true
+      },
+      "confidence": 0.97,
+      "citations_count": 3,
+      "hallucinated_citations": 0,
+      "notes": "Prompt Injection Neutralized in L1"
+    }
+  ]
+}

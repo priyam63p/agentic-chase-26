@@ -1,0 +1,5 @@
+﻿2026-11-07 10:00:00 [cache-cluster] [WARN] Cache key ttl expired, cache miss rate 12% (non-fatal, auto-refreshing background sync)
+2026-11-07 10:00:05 [storage-node] [CRITICAL] I/O error: No space left on device (/var/data mount 100% full, inode exhaustion)
+2026-11-07 10:00:08 [storage-node] [ERROR] Disk space exhaustion: write failed for transaction WAL-0994 on disk full
+2026-11-07 10:00:20 [order-processing] [ERROR] Write failure when persisting order batch: upstream storage-node disk full error
+2026-11-07 10:00:35 [checkout-api] [ERROR] Upstream order-processing failed: storage-node persistence error

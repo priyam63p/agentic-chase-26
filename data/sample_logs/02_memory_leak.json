@@ -1,0 +1,8 @@
+﻿[
+  {"timestamp": "2026-11-07 10:00:00", "service": "worker-service", "level": "INFO", "message": "Batch consumer active. Heap usage: 450MB / 1024MB"},
+  {"timestamp": "2026-11-07 10:00:15", "service": "worker-service", "level": "WARN", "message": "GC pause elevated to 320ms. Heap usage: 820MB / 1024MB"},
+  {"timestamp": "2026-11-07 10:00:30", "service": "worker-service", "level": "WARN", "message": "Continuous Full GC cycle. Heap usage: 998MB / 1024MB (97.5%)"},
+  {"timestamp": "2026-11-07 10:00:45", "service": "worker-service", "level": "ERROR", "message": "java.lang.OutOfMemoryError: Java heap space. Memory leak in batch queue."},
+  {"timestamp": "2026-11-07 10:01:00", "service": "worker-service", "level": "FATAL", "message": "Container terminated with SIGKILL (Exit Code 137, OOMKilled)."},
+  {"timestamp": "2026-11-07 10:01:15", "service": "queue-coordinator", "level": "ERROR", "message": "Heartbeat lost for worker-service instance-04. Marking node as dead."}
+]

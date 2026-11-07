@@ -1,0 +1,170 @@
+﻿[
+  {
+    "id": "RB-001",
+    "title": "PostgreSQL Connection Pool Exhaustion",
+    "category": "DATABASE",
+    "keywords": ["postgres", "database", "connection pool", "pool exhausted", "timeout acquiring connection", "max_connections"],
+    "symptoms": [
+      "Application logs report 'Timeout acquiring connection from pool'",
+      "Database active connections reach max_connections limit",
+      "Cascading 500/504 errors in dependent upstream APIs"
+    ],
+    "remediation_steps": [
+      "1. Inspect active connection count via `SELECT count(*) FROM pg_stat_activity;`",
+      "2. Terminate long-running idle in transaction queries: `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle in transaction' AND state_change < now() - INTERVAL '5 minutes';`",
+      "3. Scale PgBouncer pool size or increase application max-pool-size.",
+      "4. Restart connection pooler service to release leaked handles."
+    ],
+    "verification_steps": [
+      "Verify connection pool utilization falls below 70%",
+      "Confirm API response latencies return to p95 < 200ms"
+    ]
+  },
+  {
+    "id": "RB-002",
+    "title": "Worker Process Heap Memory Leak & OOM Crash",
+    "category": "MEMORY",
+    "keywords": ["memory leak", "out of memory", "oom", "heap", "gc pause", "sigkill", "exit code 137"],
+    "symptoms": [
+      "Monotonically rising memory usage over time without plateau",
+      "Elevated Garbage Collection (GC) pauses causing request queueing",
+      "Container terminated with OOMKilled (Exit Code 137)"
+    ],
+    "remediation_steps": [
+      "1. Trigger an on-demand heap dump before container recycling if diagnostics enabled.",
+      "2. Perform graceful rolling restart of the affected worker deployment.",
+      "3. Temporarily increase container memory limit by 50% in Kubernetes deployment manifest.",
+      "4. Roll back recent commits touching in-memory caches or object references."
+    ],
+    "verification_steps": [
+      "Monitor resident set size (RSS) memory stabilization after restart",
+      "Ensure container restart count stops incrementing"
+    ]
+  },
+  {
+    "id": "RB-003",
+    "title": "Bad Deployment / Release Rollback",
+    "category": "DEPLOYMENT",
+    "keywords": ["deploy", "release", "rollback", "500 spike", "version mismatch", "startup error"],
+    "symptoms": [
+      "Immediate surge in 500 errors starting within seconds of deployment event",
+      "SyntaxError, ImportError, or migration incompatibility logs",
+      "Health check endpoint failures on newly provisioned pods"
+    ],
+    "remediation_steps": [
+      "1. Immediately execute deployment rollback to previous stable tag: `kubectl rollout undo deployment/<service-name>`",
+      "2. Invalidate deployment lock and stop ongoing CI/CD pipelines.",
+      "3. Verify previous stable image pods reach Ready 1/1 state.",
+      "4. Engage release author to triage faulty commit diff."
+    ],
+    "verification_steps": [
+      "Confirm error rate drops back to baseline (< 0.1%)",
+      "Verify deployment revision matches last known stable hash"
+    ]
+  },
+  {
+    "id": "RB-004",
+    "title": "Disk Space Exhaustion & Write Failure",
+    "category": "STORAGE",
+    "keywords": ["disk full", "no space left on device", "filesystem", "enospc", "write failed", "inode"],
+    "symptoms": [
+      "I/O Error: 'No space left on device'",
+      "Log append failures and database write transaction aborts",
+      "System services crashing due to inability to write pid or temp files"
+    ],
+    "remediation_steps": [
+      "1. Identify offending mount and directory: `df -h` and `du -sh /var/log/*`",
+      "2. Truncate unrotated or oversized log files: `truncate -s 0 /var/log/app/*.log`",
+      "3. Clean temporary directories: `rm -rf /tmp/*.tmp`",
+      "4. Trigger volume resize / expand Persistent Volume Claim (PVC)."
+    ],
+    "verification_steps": [
+      "Confirm available disk space is > 20% on all critical mounts",
+      "Verify write transactions resume successfully"
+    ]
+  },
+  {
+    "id": "RB-005",
+    "title": "Redis Cache Eviction Storm & Saturation",
+    "category": "CACHE",
+    "keywords": ["cache", "redis", "eviction", "cache stampede", "keyspace", "maxmemory"],
+    "symptoms": [
+      "High rate of evicted keys reported in Redis INFO stats",
+      "Severe latency degradation on database due to cache miss stampede",
+      "Cache client connection timeouts"
+    ],
+    "remediation_steps": [
+      "1. Check Redis memory usage: `redis-cli info memory`",
+      "2. Increase maxmemory limit or scale Redis cluster shards.",
+      "3. Temporarily enable circuit-breaking on expensive cache-aside queries.",
+      "4. Review keyspace expiration policies (switch to volatile-lru if appropriate)."
+    ],
+    "verification_steps": [
+      "Confirm cache hit ratio recovers above 90%",
+      "Ensure eviction rate drops to 0"
+    ]
+  },
+  {
+    "id": "RB-006",
+    "title": "API Gateway & Egress Network Timeout",
+    "category": "NETWORK",
+    "keywords": ["gateway timeout", "504", "upstream timeout", "connection refused", "dns resolution"],
+    "symptoms": [
+      "API Gateway returning 504 Gateway Timeout to external clients",
+      "Upstream connection refused or socket read timeout errors",
+      "Degraded ingress throughput"
+    ],
+    "remediation_steps": [
+      "1. Check connectivity to upstream service: `curl -v http://upstream-service:port/health`",
+      "2. Scale upstream service replicas if latency is caused by traffic overload.",
+      "3. Inspect service mesh / Envoy proxy logs for connection pool exhaustion.",
+      "4. Restart Envoy sidecar proxies if route tables are stale."
+    ],
+    "verification_steps": [
+      "Verify gateway 504 rate drops to zero",
+      "Confirm health checks return HTTP 200"
+    ]
+  },
+  {
+    "id": "RB-007",
+    "title": "Kafka Consumer Lag & Rebalance Loop",
+    "category": "STREAMING",
+    "keywords": ["kafka", "consumer lag", "rebalance", "heartbeat timeout", "partition"],
+    "symptoms": [
+      "Consumer lag continuously climbing across topic partitions",
+      "Frequent 'CommitFailedException' and repeated rebalance storms",
+      "Messages remaining unconsumed past SLA thresholds"
+    ],
+    "remediation_steps": [
+      "1. Increase `max.poll.interval.ms` to give consumers adequate processing time.",
+      "2. Temporarily reduce `max.poll.records` to prevent timeout on batch processing.",
+      "3. Scale consumer group instances up to partition count.",
+      "4. Restart unresponsive consumer pods."
+    ],
+    "verification_steps": [
+      "Verify consumer group status is 'Stable'",
+      "Confirm consumer lag trends downwards toward zero"
+    ]
+  },
+  {
+    "id": "RB-008",
+    "title": "Kubernetes Pod CrashLoopBackOff",
+    "category": "INFRASTRUCTURE",
+    "keywords": ["crashloopbackoff", "pod crash", "exit code 1", "exit code 137", "liveness probe failed"],
+    "symptoms": [
+      "Pod status showing CrashLoopBackOff in `kubectl get pods`",
+      "Liveness probe consecutive failure threshold exceeded",
+      "Application failing during initialization"
+    ],
+    "remediation_steps": [
+      "1. Inspect pod termination reason and logs: `kubectl describe pod <pod>` and `kubectl logs <pod> --previous`",
+      "2. Check for missing configuration secrets or broken configmaps.",
+      "3. Increase liveness probe `initialDelaySeconds` if cold boot is slow.",
+      "4. Restart deployment after applying fix."
+    ],
+    "verification_steps": [
+      "Confirm all pods enter Running state with 1/1 containers Ready",
+      "Confirm restart count does not increment"
+    ]
+  }
+]
