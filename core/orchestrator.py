@@ -1,4 +1,4 @@
-﻿import json
+import json
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -24,6 +24,13 @@ class PipelineOrchestrator:
     def __init__(self):
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         AUDIT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        # Shared memory store accessible by all agents
+        self.shared_memory: dict = {}
+        # Instantiate feedback and fixer agents (they operate on shared_memory)
+        from core.feedback_agent import FeedbackAgent
+        from core.fixer_agent import FixerAgent
+        self.feedback_agent = FeedbackAgent(self.shared_memory)
+        self.fixer_agent = FixerAgent(self.shared_memory)
 
     def log_audit(self, layer: str, action: str, status: str, details: Dict[str, Any]):
         """Appends structured JSON entry to outputs/audit.log."""
@@ -201,6 +208,13 @@ class PipelineOrchestrator:
         )
 
         report.markdown_report = output_guard_res.sanitized_report
+        # Store the report in shared memory for downstream access
+        self.shared_memory['incident_report'] = report
+        # Ensure feedback flag is present (None until user acts)
+        self.shared_memory.setdefault('feedback', None)
+        # If feedback already approved (e.g., automated test), run fixer immediately
+        if self.shared_memory.get('feedback') is True:
+            self.fixer_agent.run_fix()
         report.requires_human_approval = output_guard_res.requires_human_review
 
         self.log_audit(

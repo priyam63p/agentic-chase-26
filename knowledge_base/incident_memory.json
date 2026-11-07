@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "incident_id": "INC-014",
     "title": "PostgreSQL connection pool saturation during morning rush",
@@ -6,7 +6,10 @@
     "root_cause_description": "Connection pool reached maximum limit due to unindexed query holding locks, causing orders-api to timeout.",
     "severity": "Critical",
     "resolution_summary": "Resolved by restarting connection pooler, terminating long-running idle transactions, and scaling max pool connections.",
-    "citations": ["L-0012", "L-0018"],
+    "citations": [
+      "L-0012",
+      "L-0018"
+    ],
     "timestamp": "2026-10-15T08:30:00"
   },
   {
@@ -16,7 +19,25 @@
     "root_cause_description": "Unbounded cache in batch processing caused heap exhaustion and container SIGKILL (OOMKilled).",
     "severity": "High",
     "resolution_summary": "Resolved by clearing cache references, restarting worker deployment, and increasing memory limit by 1GiB.",
-    "citations": ["L-0005", "L-0044"],
+    "citations": [
+      "L-0005",
+      "L-0044"
+    ],
     "timestamp": "2026-09-20T14:15:00"
+  },
+  {
+    "incident_id": "INC-861CE3",
+    "title": "Incident in checkout (Scenario 3 \u00b7 Bad Deploy \u2192 500 Spike)",
+    "root_cause_service": "checkout",
+    "root_cause_description": "Incident investigation identified root cause in service **`checkout`** (Primary Root Cause: Bad Deployment in `checkout`). Cascading failures propagated through 2 services. Adversarial verification determined hypothesis confidence of **97.0%** with all cited claims grounded in verified log entries.",
+    "severity": "Critical",
+    "resolution_summary": "Approved remediation from Runbook N/A: 1. Isolate failing node and inspect service logs.; 2. Perform rolling restart of impacted deployment.",
+    "citations": [
+      "L-0001",
+      "L-0003",
+      "L-0004",
+      "L-0005"
+    ],
+    "timestamp": "2026-11-07T09:23:06.726649"
   }
 ]
